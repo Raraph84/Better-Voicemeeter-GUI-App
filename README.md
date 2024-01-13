@@ -19,6 +19,7 @@ An Electron-based application for simplifying the management of basic settings i
 - Add names to outputs and allow changing names directly in the app.
 - Ability to show/hide inputs/outputs.
 - Ability to link inputs/outputs to Windows volume.
+- Ability to launch on startup
 
 ## Contributions
 
