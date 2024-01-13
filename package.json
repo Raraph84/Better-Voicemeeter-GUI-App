@@ -1,7 +1,7 @@
 {
   "name": "better-voicemeeter-gui-app",
   "productName": "better-voicemeeter-gui-app",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "A better GUI for Voicemeeter",
   "main": "src/index.js",
   "scripts": {

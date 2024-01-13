@@ -1,6 +1,8 @@
-# Better Voicemeeter GUI
+# Better Voicemeeter GUI - App
 
-An enhanced user interface to simplify the management of basic settings in Voicemeeter Banana/Potato.
+An Electron-based application for simplifying the management of basic settings in Voicemeeter Banana/Potato.
+
+**This application utilizes its corresponding [frontend](https://github.com/Raraph84/Better-Voicemeeter-GUI-Frontend).**
 
 ![Better Voicemeeter GUI Screenshot](https://files.raraph.fr/better-voicemeeter-gui-screenshot.png)
 
@@ -12,32 +14,8 @@ An enhanced user interface to simplify the management of basic settings in Voice
 - Redirect inputs to different outputs.
 - Mute function for each input/output.
 
-## Usage
-
-### Prerequisites
-
-Make sure to have Node.js installed on your machine.
-
-### Installation
-
-1. Clone this repository.
-2. Run `npm install` to install dependencies.
-
-### Execution
-
-1. Run the application with `npm start`.
-
-### Build
-
-You can create an application package with the following command:
-
-```bash
-npm run package
-```
-
 ## Roadmap
 
-- Refactor frontend with ReactJS
 - Add names to outputs and allow changing names directly in the app.
 - Ability to show/hide inputs/outputs.
 - Ability to link inputs/outputs to Windows volume.

@@ -32,7 +32,8 @@ const createWindow = () => {
 
     if (app.isPackaged) window.setMenu(null);
 
-    window.loadFile(path.join(__dirname, "index.html"));
+    if (app.isPackaged) window.loadFile(path.join(__dirname, "frontend", "index.html"));
+    else window.loadURL("http://localhost:3000");
 };
 
 const createTray = () => {
