@@ -23,6 +23,7 @@ const createWindow = () => {
         height,
         minWidth: width,
         minHeight: height,
+        icon: path.join(__dirname, "icon.ico"),
         title: "Better Voicemeeter GUI",
         autoHideMenuBar: true,
         webPreferences: {
@@ -37,7 +38,7 @@ const createWindow = () => {
 
 const createTray = () => {
 
-    const tray = new Tray(path.join(__dirname, "icon.png"));
+    const tray = new Tray(path.join(__dirname, "icon.ico"));
     tray.setContextMenu(Menu.buildFromTemplate([{ label: "Fermer", click: () => app.quit() }]));
 
     tray.on("click", () => {
