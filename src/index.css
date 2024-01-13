@@ -1,0 +1,151 @@
+@import url("https://api.fontshare.com/v2/css?f[]=chillax");
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Chillax", sans-serif;
+    font-weight: 500;
+    color: white;
+}
+
+body {
+    height: 100vh;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    background-color: #152A38;
+}
+
+.inputs,
+.outputs {
+    flex: 1 1 0px;
+    display: flex;
+    gap: 15px;
+}
+
+.input,
+.output {
+    flex: 1 1 0px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    background-color: #29435C;
+    border-radius: 10px;
+}
+
+.input .label,
+.output .label {
+    font-size: 18px;
+    white-space: nowrap;
+    text-align: center;
+}
+
+.input .column,
+.output .column {
+    display: flex;
+    height: 100%;
+    padding: 10px 0;
+    gap: 10px;
+}
+
+.input .column .level,
+.output .column .level {
+    flex: 1 1 0px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.input .column .level>div,
+.output .column .level>div {
+    width: 45%;
+    display: flex;
+    align-items: end;
+    background-color: #1A3041;
+    border-radius: 5px;
+}
+
+.input .column .level>div>div,
+.output .column .level>div>div {
+    width: 100%;
+    background-color: rgb(112, 195, 153);
+    border-radius: 5px;
+}
+
+.input .column .muted>div>div,
+.output .column .muted>div>div {
+    background-color: rgb(57, 68, 70);
+}
+
+.input .column .gain,
+.output .column .gain {
+    flex: 1 1 0px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.input .column .buttons,
+.output .column .buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.input .column .buttons .gain-value,
+.output .column .buttons .gain-value {
+    font-size: 12px;
+    text-align: center;
+}
+
+.input .column .buttons button,
+.output .column .buttons button {
+    background-color: transparent;
+    border: 1px solid gray;
+    color: gray;
+    padding: 3px;
+    border-radius: 8px;
+    outline: none;
+}
+
+.input .column .buttons button.active,
+.output .column .buttons button.active {
+    background-color: transparent;
+    border-color: rgb(112, 195, 153);
+    color: rgb(112, 195, 153);
+}
+
+.input .column .buttons button.mute.active,
+.output .column .buttons button.mute.active {
+    border-color: rgb(225, 92, 80);
+    color: rgb(225, 92, 80);
+}
+
+input[type="range"] {
+    appearance: none;
+    background-color: transparent;
+    rotate: -90deg;
+    position: absolute;
+    outline: none;
+}
+
+input[type="range"]::-webkit-slider-runnable-track {
+    position: relative;
+    height: 15px;
+    border: 1px solid white;
+    border-radius: 8px;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    box-sizing: border-box;
+    appearance: none;
+    position: relative;
+    background-color: rgba(255, 255, 255, 0.5);
+    border: 2px solid white;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    top: 50%;
+    translate: 0 -50%;
+}
