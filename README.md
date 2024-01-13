@@ -35,6 +35,13 @@ You can create an application package with the following command:
 npm run package
 ```
 
+## Roadmap
+
+- Refactor frontend with ReactJS
+- Add names to outputs and allow changing names directly in the app.
+- Ability to show/hide inputs/outputs.
+- Ability to link inputs/outputs to Windows volume.
+
 ## Contributions
 
 Contributions are welcome! If you would like to contribute, please create a pull request.
