@@ -1,7 +1,6 @@
 const { app, BrowserWindow, Tray, Menu, ipcMain } = require("electron");
 const path = require("path");
 const voicemeeter = require("voicemeeter-remote");
-const config = require("../config.json");
 
 /** @type {import("electron").BrowserWindow} */
 let window;
