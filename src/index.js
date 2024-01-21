@@ -1,3 +1,5 @@
+const { promises: fs } = require("fs");
+const { join, dirname } = require("path");
 const { app, BrowserWindow, Tray, Menu, ipcMain } = require("electron");
 const path = require("path");
 const voicemeeter = require("voicemeeter-remote");
@@ -6,6 +8,10 @@ const voicemeeter = require("voicemeeter-remote");
 let window;
 
 let interval;
+
+let config = {};
+
+const saveConfig = () => fs.writeFile(join(dirname(__dirname), "config.json"), JSON.stringify(config, null, 4));
 
 const createWindow = () => {
 
@@ -46,12 +52,32 @@ const createTray = () => {
     });
 };
 
-app.on("ready", () => {
-    voicemeeter.init().then(() => {
-        voicemeeter.login();
-        createTray();
-        if (!app.isPackaged) createWindow();
-    });
+app.on("ready", async () => {
+
+    try {
+        config = JSON.parse((await fs.readFile(join(dirname(__dirname), "config.json"))).toString());
+    } catch (error) {
+    }
+
+    await voicemeeter.init();
+    voicemeeter.login();
+
+    if (typeof config.outputs !== "object")
+        config.outputs = {};
+
+    for (const bus of voicemeeter.voicemeeterConfig.buses) {
+        const busName = getBusNameByConfig(bus);
+        if (typeof config.outputs[busName] !== "object")
+            config.outputs[busName] = {};
+        if (typeof config.outputs[busName].label !== "string")
+            config.outputs[busName].label = undefined;
+    }
+
+    saveConfig();
+
+    createTray();
+
+    if (!app.isPackaged) createWindow();
 });
 
 app.on("window-all-closed", () => {
@@ -62,9 +88,62 @@ app.on("will-quit", () => {
     voicemeeter.logout();
 });
 
+const getStripNameByConfig = (strip) => (!strip.isVirtual ? "A" : "B") + (voicemeeter.voicemeeterConfig.strips.filter((s) => s.isVirtual === strip.isVirtual).findIndex((s) => s === strip) + 1);
+const getStripNameById = (id) => getStripNameByConfig(voicemeeter.voicemeeterConfig.strips[id]);
+
+const getBusNameByConfig = (bus) => (!bus.isVirtual ? "A" : "B") + (voicemeeter.voicemeeterConfig.buses.filter((b) => b.isVirtual === bus.isVirtual).findIndex((b) => b === bus) + 1);
+const getBusNameById = (id) => getBusNameByConfig(voicemeeter.voicemeeterConfig.buses[id]);
+
+const sendConfig = () => {
+
+    window.webContents.send("config", {
+        inputs: voicemeeter.voicemeeterConfig.strips.map((strip) => ({
+            id: strip.id,
+            name: getStripNameByConfig(strip),
+            label: voicemeeter._getParameterString(0, "label", strip.id) || null,
+            gain: voicemeeter._getParameterFloat(0, "gain", strip.id),
+            mute: !!voicemeeter._getParameterFloat(0, "mute", strip.id),
+            outputs: voicemeeter.voicemeeterConfig.buses.map((bus) => ({
+                id: bus.id,
+                name: getBusNameByConfig(bus),
+                enabled: !!voicemeeter._getParameterFloat(0, getBusNameByConfig(bus), strip.id)
+            }))
+        })),
+        outputs: voicemeeter.voicemeeterConfig.buses.map((bus) => ({
+            id: bus.id,
+            name: getBusNameByConfig(bus),
+            label: config.outputs[getBusNameByConfig(bus)].label || null,
+            gain: voicemeeter._getParameterFloat(1, "gain", bus.id),
+            mute: !!voicemeeter._getParameterFloat(1, "mute", bus.id)
+        }))
+    });
+}
+
+const sendLevels = () => {
+
+    window.webContents.send("levels", {
+        inputs: voicemeeter.voicemeeterConfig.strips.map((strip) => {
+            const id = voicemeeter.voicemeeterConfig.strips.filter((s) => s.id < strip.id && !s.isVirtual).length * 2 + voicemeeter.voicemeeterConfig.strips.filter((s) => s.id < strip.id && s.isVirtual).length * 8;
+            return {
+                id: strip.id,
+                levelLeft: voicemeeter.getLevel(1, id),
+                levelRight: voicemeeter.getLevel(1, id + 1)
+            };
+        }),
+        outputs: voicemeeter.voicemeeterConfig.buses.map((bus) => {
+            const id = bus.id * 8;
+            return {
+                id: bus.id,
+                levelLeft: voicemeeter.getLevel(3, id),
+                levelRight: voicemeeter.getLevel(3, id + 1)
+            };
+        })
+    });
+}
+
 ipcMain.on("loaded", () => {
 
-    let initialized = false;
+    sendConfig();
 
     interval = setInterval(() => {
 
@@ -73,57 +152,10 @@ ipcMain.on("loaded", () => {
             return;
         }
 
-        if (voicemeeter.isParametersDirty() || !initialized) {
-            initialized = true;
-            window.webContents.send("config", {
-                inputs: voicemeeter.voicemeeterConfig.strips.map((strip) => {
-                    const stripName = (!strip.isVirtual ? "A" : "B") + (voicemeeter.voicemeeterConfig.strips.filter((s) => s.isVirtual === strip.isVirtual).findIndex((s) => s === strip) + 1);
-                    return {
-                        id: strip.id,
-                        name: stripName,
-                        label: voicemeeter._getParameterString(0, "label", strip.id),
-                        gain: voicemeeter._getParameterFloat(0, "gain", strip.id),
-                        mute: !!voicemeeter._getParameterFloat(0, "mute", strip.id),
-                        outputs: voicemeeter.voicemeeterConfig.buses.map((bus) => {
-                            const busName = (!bus.isVirtual ? "A" : "B") + (voicemeeter.voicemeeterConfig.buses.filter((b) => b.isVirtual === bus.isVirtual).findIndex((b) => b === bus) + 1);
-                            return {
-                                id: bus.id,
-                                name: busName,
-                                enabled: !!voicemeeter._getParameterFloat(0, busName, strip.id)
-                            };
-                        })
-                    };
-                }),
-                outputs: voicemeeter.voicemeeterConfig.buses.map((bus) => {
-                    const busName = (!bus.isVirtual ? "A" : "B") + (voicemeeter.voicemeeterConfig.buses.filter((b) => b.isVirtual === bus.isVirtual).findIndex((b) => b === bus) + 1);
-                    return {
-                        id: bus.id,
-                        name: busName,
-                        gain: voicemeeter._getParameterFloat(1, "gain", bus.id),
-                        mute: !!voicemeeter._getParameterFloat(1, "mute", bus.id)
-                    };
-                })
-            });
-        }
+        if (voicemeeter.isParametersDirty())
+            sendConfig();
 
-        window.webContents.send("levels", {
-            inputs: voicemeeter.voicemeeterConfig.strips.map((strip) => {
-                const id = voicemeeter.voicemeeterConfig.strips.filter((s) => s.id < strip.id && !s.isVirtual).length * 2 + voicemeeter.voicemeeterConfig.strips.filter((s) => s.id < strip.id && s.isVirtual).length * 8;
-                return {
-                    id: strip.id,
-                    levelLeft: voicemeeter.getLevel(1, id),
-                    levelRight: voicemeeter.getLevel(1, id + 1)
-                };
-            }),
-            outputs: voicemeeter.voicemeeterConfig.buses.map((bus) => {
-                const id = bus.id * 8;
-                return {
-                    id: bus.id,
-                    levelLeft: voicemeeter.getLevel(3, id),
-                    levelRight: voicemeeter.getLevel(3, id + 1)
-                };
-            })
-        });
+        sendLevels();
 
     }, 1000 / 33);
 });
@@ -132,6 +164,8 @@ ipcMain.on("config", (event, args) => {
 
     if (typeof args.inputs !== "undefined") {
         for (const input of args.inputs) {
+            if (typeof input.label !== "undefined")
+                voicemeeter._setParameterString(0, "label", input.id, input.label);
             if (typeof input.gain !== "undefined")
                 voicemeeter._setParameterFloat(0, "gain", input.id, input.gain);
             if (typeof input.mute !== "undefined")
@@ -149,6 +183,11 @@ ipcMain.on("config", (event, args) => {
 
     if (typeof args.outputs !== "undefined") {
         for (const output of args.outputs) {
+            if (typeof output.label !== "undefined") {
+                config.outputs[getBusNameById(output.id)].label = output.label;
+                sendConfig();
+                saveConfig();
+            }
             if (typeof output.gain !== "undefined")
                 voicemeeter._setParameterFloat(1, "gain", output.id, output.gain);
             if (typeof output.mute !== "undefined")
