@@ -18,7 +18,35 @@ An Electron-based application for simplifying the management of basic settings i
 
 - Ability to show/hide inputs/outputs.
 - Ability to link inputs/outputs to Windows volume.
-- Ability to launch on startup
+- Ability to launch on startup.
+- Ability to change hard output.
+- Find a better icon.
+
+## Build (with cmd)
+
+Clone the app and frontend repos :
+```
+git clone https://github.com/Raraph84/Better-Voicemeeter-GUI-App
+git clone https://github.com/Raraph84/Better-Voicemeeter-GUI-Frontend
+```
+Build the frontend :
+```
+cd Better-Voicemeeter-GUI-Frontend
+npm install
+npm run build
+```
+Move the frontend to the app :
+```
+cd ..
+move Better-Voicemeeter-GUI-Frontend/build Better-Voicemeeter-GUI-App/src/frontend
+```
+Build the app :
+```
+cd Better-Voicemeeter-GUI-App
+npm install
+npm run package
+```
+The built app is in `Better-Voicemeeter-GUI-App/out`
 
 ## Contributions
 

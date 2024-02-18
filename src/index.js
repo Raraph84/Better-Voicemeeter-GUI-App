@@ -16,6 +16,7 @@ const saveConfig = () => fs.writeFile(join(dirname(__dirname), "config.json"), J
 const createWindow = () => {
 
     if (window) {
+        window.restore();
         window.focus();
         return;
     }
@@ -40,12 +41,14 @@ const createWindow = () => {
 
     if (app.isPackaged) window.loadFile(path.join(__dirname, "frontend", "index.html"));
     else window.loadURL("http://localhost:3000");
+
+    createWindow(); // Focus
 };
 
 const createTray = () => {
 
     const tray = new Tray(path.join(__dirname, "icon.ico"));
-    tray.setContextMenu(Menu.buildFromTemplate([{ label: "Fermer", click: () => app.quit() }]));
+    tray.setContextMenu(Menu.buildFromTemplate([{ label: "Close", click: () => app.quit() }]));
 
     tray.on("click", () => {
         createWindow();
@@ -89,7 +92,6 @@ app.on("will-quit", () => {
 });
 
 const getStripNameByConfig = (strip) => (!strip.isVirtual ? "A" : "B") + (voicemeeter.voicemeeterConfig.strips.filter((s) => s.isVirtual === strip.isVirtual).findIndex((s) => s === strip) + 1);
-const getStripNameById = (id) => getStripNameByConfig(voicemeeter.voicemeeterConfig.strips[id]);
 
 const getBusNameByConfig = (bus) => (!bus.isVirtual ? "A" : "B") + (voicemeeter.voicemeeterConfig.buses.filter((b) => b.isVirtual === bus.isVirtual).findIndex((b) => b === bus) + 1);
 const getBusNameById = (id) => getBusNameByConfig(voicemeeter.voicemeeterConfig.buses[id]);
