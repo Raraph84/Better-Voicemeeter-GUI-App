@@ -24,6 +24,7 @@ An Electron-based application for simplifying the management of basic settings i
 
 ## Build (with cmd)
 
+Download [Git](https://git-scm.com/downloads) and [NodeJS](https://nodejs.org/en/download)  
 Clone the app and frontend repos :
 ```
 git clone https://github.com/Raraph84/Better-Voicemeeter-GUI-App
